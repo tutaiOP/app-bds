@@ -8,7 +8,7 @@ export default function RootLayout() {
       //     initialRouteName="selectAddress"
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="(posttabs)" options={{ headerShown: false }} /> */}
+        <Stack.Screen name="(posttabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="auth/login"
           options={{

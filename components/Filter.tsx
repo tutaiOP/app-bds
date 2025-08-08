@@ -77,20 +77,20 @@ const propertyTypes = [
 ];
 
 const priceTypes = [
-  { label: "Tất cả khoảng giá", value: "price1" },
-  { label: "Dưới 500 triệu", value: "price2" },
-  { label: "500 - 800 triệu", value: "price3" },
-  { label: "800 triệu - 1 tỷ", value: "price4" },
-  { label: "1 - 2 tỷ", value: "price5" },
-  { label: "2 - 3 tỷ", value: "price6" },
-  { label: "3 - 5 tỷ", value: "price7" },
-  { label: "7 - 10 tỷ", value: "price8" },
-  { label: "10 - 20 tỷ", value: "price9" },
-  { label: "20 - 30 tỷ", value: "price10" },
-  { label: "30 - 40 tỷ", value: "price11" },
-  { label: "40 - 60 tỷ", value: "price12" },
-  { label: "Trên 60 tỷ", value: "price13" },
-  { label: "Thỏa thuận", value: "price14" },
+  { label: "Tất cả khoảng giá", value: "Tất cả khoảng giá" },
+  { label: "Dưới 500 triệu", value: "Dưới 500 triệu" },
+  { label: "500 - 800 triệu", value: "500 - 800 triệu" },
+  { label: "800 triệu - 1 tỷ", value: "800 triệu - 1 tỷ" },
+  { label: "1 - 2 tỷ", value: "1 - 2 tỷ" },
+  { label: "2 - 3 tỷ", value: "2 - 3 tỷ" },
+  { label: "3 - 5 tỷ", value: "3 - 5 tỷ" },
+  { label: "7 - 10 tỷ", value: "7 - 10 tỷ" },
+  { label: "10 - 20 tỷ", value: "10 - 20 tỷ" },
+  { label: "20 - 30 tỷ", value: "20 - 30 tỷ" },
+  { label: "30 - 40 tỷ", value: "30 - 40 tỷ" },
+  { label: "40 - 60 tỷ", value: "40 - 60 tỷ" },
+  { label: "Trên 60 tỷ", value: "Trên 60 tỷ" },
+  { label: "Thỏa thuận", value: "Thỏa thuận" },
 ];
 
 const areaTypes = [
@@ -109,70 +109,70 @@ const areaTypes = [
 const directionHomeTypes = [
   {
     label: "Đông",
-    value: "dong",
+    value: "Đông",
   },
   {
     label: "Tây",
-    value: "tay",
+    value: "Tây",
   },
   {
     label: "Nam",
-    value: "nam",
+    value: "Nam",
   },
   {
     label: "Bắc",
-    value: "bac",
+    value: "Bắc",
   },
   {
     label: "Đông Bắc",
-    value: "dongbac",
+    value: "Đông Bắc",
   },
   {
     label: "Đông Nam",
-    value: "dongnam",
+    value: "Đông Nam",
   },
   {
     label: "Tây Bắc",
-    value: "taybac",
+    value: "Tây Bắc",
   },
   {
     label: "Tây Nam",
-    value: "taynam",
+    value: "Tây Nam",
   },
 ];
 
 const directionBalconyTypes = [
   {
     label: "Đông",
-    value: "dong",
+    value: "Đông",
   },
   {
     label: "Tây",
-    value: "tay",
+    value: "Tây",
   },
   {
     label: "Nam",
-    value: "nam",
+    value: "Nam",
   },
   {
     label: "Bắc",
-    value: "bac",
+    value: "Bắc",
   },
   {
     label: "Đông Bắc",
-    value: "dongbac",
+    value: "Đông Bắc",
   },
   {
     label: "Đông Nam",
-    value: "dongnam",
+    value: "Đông Nam",
   },
   {
     label: "Tây Bắc",
-    value: "taybac",
+    value: "Tây Bắc",
   },
   {
     label: "Tây Nam",
-    value: "taynam",
+    value: "Tây Nam",
   },
 ];
 
@@ -202,13 +202,10 @@ const Filter = () => {
   const [selectedPriceDisplay, setSelectedPriceDisplay] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
 
-  // Format giá trị để hiển thị
-  const formatDisplayPrice = (range: [number, number]) => {
-    if (range[0] === 0 && range[1] === 0) return "Khoảng giá";
-    return `${(range[0] / 1000000).toFixed(1)} tỷ - ${(range[1] / 1000000).toFixed(1)} tỷ`;
-  };
-
   const [selectedValueArea, setSelectedValueArea] = useState(""); // Mặc định là 'default'
+  const [selectedAreaDisplay, setSelectedAreaDisplay] = useState("");
+  const [areaRange, setAreaRange] = useState<[number, number]>([0, 0]);
+
   const [selectedValuesBedRooms, setselectedValuesBedRooms] = useState<
     string[]
   >([]);
@@ -234,7 +231,26 @@ const Filter = () => {
           if (item === "Loại nhà đất" && selectedValues.length > 0) {
             displayText = selectedValues.join(", ");
           } else if (item === "Khoảng giá" && selectedPriceDisplay) {
-            displayText = selectedPriceDisplay || item; // Hiển thị giá trị đã chọn hoặc mặc định
+            displayText = selectedPriceDisplay || item;
+          } else if (item === "Diện tích" && selectedAreaDisplay) {
+            displayText = selectedAreaDisplay || item;
+          } else if (
+            item === "Số phòng ngủ" &&
+            selectedValuesBedRooms.length > 0
+          ) {
+            displayText = selectedValuesBedRooms.join(", ");
+          } else if (item === "Hướng nhà" && selectedDirectionHome.length > 0) {
+            displayText = selectedDirectionHome.join(", ");
+          } else if (
+            item === "Hướng ban công" &&
+            selectedDirectionBalcony.length > 0
+          ) {
+            displayText = selectedDirectionBalcony.join(", ");
+          } else if (
+            item === "Tin có ảnh/video" &&
+            selectedValuesImageAndVideo.length > 0
+          ) {
+            displayText = selectedValuesImageAndVideo.join(", ");
           }
 
           return (
@@ -326,8 +342,30 @@ const Filter = () => {
         selectedValue={selectedValueArea}
         setSelectedValue={setSelectedValueArea}
         isMultiple={true}
-        onApply={() => console.log("Áp dụng Diện tích: ", selectedValueArea)}
-        onReset={() => setSelectedValueArea("")}
+        onApply={(rangeFromModal) => {
+          setAreaRange(rangeFromModal);
+          if (rangeFromModal[0] !== 0 || rangeFromModal[1] !== 0) {
+            const displayText = `${rangeFromModal[0]} m² - ${rangeFromModal[1]} m²`;
+            setSelectedAreaDisplay(displayText);
+            setSelectedValueArea(""); // reset selectedValue vì giờ dùng range
+          } else {
+            setSelectedAreaDisplay("");
+            setSelectedValueArea("");
+          }
+          setActiveFilter(null);
+          console.log("Áp dụng giá trị:", {
+            range: rangeFromModal,
+          });
+        }}
+        onReset={() => {
+          setSelectedValueArea("");
+          setSelectedAreaDisplay(""); // Reset cả hiển thị
+          setAreaRange([0, 0]);
+        }}
+        onRangeChange={(range) => {
+          setAreaRange(range);
+          setSelectedValueArea(""); // Reset option khi thay đổi slider
+        }}
       />
 
       {/* Modal Picker cho "Hướng nhà" */}
