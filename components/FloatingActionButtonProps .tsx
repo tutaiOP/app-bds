@@ -4,7 +4,7 @@ import { GestureResponderEvent, Text, TouchableOpacity } from "react-native";
 
 interface FloatingActionButtonProps {
   text: string;
-  onPress: (event: GestureResponderEvent) => void;
+  onPress?: (event: GestureResponderEvent) => void;
   icon?: string;
   bgColor?: string;
 }

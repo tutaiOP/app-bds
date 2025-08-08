@@ -22,53 +22,56 @@ const filters = [
 const propertyTypes = [
   {
     label: "Tất cả nhà đất",
-    value: "all",
+    value: "Tất cả nhà đất",
     icon: <Feather name="home" size={20} />,
   },
   {
     label: "Căn hộ chung cư",
-    value: "apartment",
+    value: "Căn hộ chung cư",
     icon: <Feather name="grid" size={20} />,
   },
   {
     label: "Chung cư mini, căn hộ dịch vụ",
-    value: "apartment-1",
+    value: "Chung cư mini, căn hộ dịch vụ",
     icon: <Feather name="grid" size={20} />,
   },
   {
     label: "Nhà bán",
-    value: "sale",
+    value: "Nhà bán",
     icon: <Feather name="tag" size={20} />,
     children: [
-      { label: "Nhà riêng", value: "private-house" },
-      { label: "Nhà biệt thự, liền kề", value: "1-house" },
-      { label: "Nhà mặt phố", value: "street-house" },
-      { label: "Shophouse, nhà phố thương mại", value: "2-house" },
+      { label: "Nhà riêng", value: "Nhà riêng" },
+      { label: "Nhà biệt thự, liền kề", value: "Nhà biệt thự, liền kề" },
+      { label: "Nhà mặt phố", value: "Nhà mặt phố" },
+      {
+        label: "Shophouse, nhà phố thương mại",
+        value: "Shophouse, nhà phố thương mại",
+      },
     ],
   },
   {
     label: "Đất bán",
-    value: "sale1",
+    value: "Đất bán",
     icon: <Feather name="tag" size={20} />,
     children: [
-      { label: "Đất nên dự án", value: "1-sale" },
-      { label: "Bán đất", value: "2-sale" },
+      { label: "Đất nên dự án", value: "Đất nên dự án" },
+      { label: "Bán đất", value: "Bán đất" },
     ],
   },
   {
     label: "Trang trại, khu nghỉ dưỡng",
-    value: "trangtrai",
+    value: "Trang trại, khu nghỉ dưỡng",
     icon: <Feather name="tag" size={20} />,
-    children: [{ label: "Condotel", value: "1-trangtrai" }],
+    children: [{ label: "Condotel", value: "Condotel" }],
   },
   {
     label: "Kho, nhà xưởng",
-    value: "kho",
+    value: "Kho, nhà xưởng",
     icon: <Feather name="grid" size={20} />,
   },
   {
     label: "Bất động sản khác",
-    value: "bds",
+    value: "Bất động sản khác",
     icon: <Feather name="grid" size={20} />,
   },
 ];
@@ -91,17 +94,17 @@ const priceTypes = [
 ];
 
 const areaTypes = [
-  { label: "Tất cả diện tích", value: "area1" },
-  { label: "Dưới 30 m²", value: "area2" },
-  { label: "30 - 50 m²", value: "area3" },
-  { label: "50 - 80 m²", value: "area4" },
-  { label: "80 - 100 m²", value: "area5" },
-  { label: "100 - 150 m²", value: "area6" },
-  { label: "150 - 200 m²", value: "area7" },
-  { label: "200 - 250 m²", value: "area8" },
-  { label: "250 - 300 m²", value: "area9" },
-  { label: "300 - 500 m²", value: "area10" },
-  { label: "Trên 500 m²", value: "area13" },
+  { label: "Tất cả diện tích", value: "Tất cả diện tích" },
+  { label: "Dưới 30 m²", value: "Dưới 30 m²" },
+  { label: "30 - 50 m²", value: "30 - 50 m²" },
+  { label: "50 - 80 m²", value: "50 - 80 m²" },
+  { label: "80 - 100 m²", value: "80 - 100 m²" },
+  { label: "100 - 150 m²", value: "100 - 150 m²" },
+  { label: "150 - 200 m²", value: "150 - 200 m²" },
+  { label: "200 - 250 m²", value: "200 - 250 m²" },
+  { label: "250 - 300 m²", value: "250 - 300 m²" },
+  { label: "300 - 500 m²", value: "300 - 500 m²" },
+  { label: "Trên 500 m²", value: "Trên 500 m²" },
 ];
 const directionHomeTypes = [
   {
@@ -196,6 +199,15 @@ const Filter = () => {
   >([]);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [selectedValuePrice, setSelectedValuePrice] = useState(""); // Mặc định là 'default'
+  const [selectedPriceDisplay, setSelectedPriceDisplay] = useState("");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+
+  // Format giá trị để hiển thị
+  const formatDisplayPrice = (range: [number, number]) => {
+    if (range[0] === 0 && range[1] === 0) return "Khoảng giá";
+    return `${(range[0] / 1000000).toFixed(1)} tỷ - ${(range[1] / 1000000).toFixed(1)} tỷ`;
+  };
+
   const [selectedValueArea, setSelectedValueArea] = useState(""); // Mặc định là 'default'
   const [selectedValuesBedRooms, setselectedValuesBedRooms] = useState<
     string[]
@@ -215,15 +227,37 @@ const Filter = () => {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
         ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleFilterPress(item)}
-            className="flex-row items-center border border-border px-4 py-2 rounded-3xl bg-white"
-          >
-            <Text className="text-gray-400 mr-1">{item}</Text>
-            <Entypo name="chevron-small-down" size={20} color="black" />
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) => {
+          // Nếu là "Loại nhà đất" thì hiển thị giá trị đã chọn
+          let displayText = item;
+
+          if (item === "Loại nhà đất" && selectedValues.length > 0) {
+            displayText = selectedValues.join(", ");
+          } else if (item === "Khoảng giá" && selectedPriceDisplay) {
+            displayText = selectedPriceDisplay || item; // Hiển thị giá trị đã chọn hoặc mặc định
+          }
+
+          return (
+            <TouchableOpacity
+              onPress={() => handleFilterPress(item)}
+              className="flex-row items-center border border-border px-4 py-2 rounded-3xl bg-white"
+            >
+              <Text
+                numberOfLines={1} // Giới hạn 1 dòng
+                ellipsizeMode="tail"
+                className={
+                  displayText === item
+                    ? "text-gray-400 mr-1"
+                    : "text-black mr-1"
+                }
+                style={{ maxWidth: 150 }}
+              >
+                {displayText}
+              </Text>
+              <Entypo name="chevron-small-down" size={20} color="black" />
+            </TouchableOpacity>
+          );
+        }}
       />
 
       {/* Modal Picker cho "Loại nhà đất" */}
@@ -250,11 +284,37 @@ const Filter = () => {
         }
         options={priceTypes}
         selectedValue={selectedValuePrice}
-        setSelectedValue={setSelectedValuePrice}
+        setSelectedValue={(value) => {
+          setSelectedValuePrice(value);
+          const selectedOption = priceTypes.find((opt) => opt.value === value);
+          setSelectedPriceDisplay(selectedOption?.label || "");
+          if (selectedOption?.label === "Tất cả khoảng giá") {
+            setPriceRange([0, 60000000]);
+          }
+        }}
         isMultiple={true}
-        onApply={() => console.log("Áp dụng: ", selectedValuePrice)}
-        onReset={() => setSelectedValuePrice("")}
+        onApply={() => {
+          // Format giá trị range để hiển thị
+          if (priceRange[0] !== 0 || priceRange[1] !== 0) {
+            const displayText = `${(priceRange[0] / 1000000).toFixed(1)} tỷ - ${(priceRange[1] / 1000000).toFixed(1)} tỷ`;
+            setSelectedPriceDisplay(displayText);
+          }
+          console.log("Áp dụng giá trị:", {
+            range: priceRange,
+            selected: selectedValuePrice,
+          });
+        }}
+        onReset={() => {
+          setSelectedValuePrice("");
+          setSelectedPriceDisplay(""); // Reset cả hiển thị
+          setPriceRange([0, 0]);
+        }}
+        onRangeChange={(range) => {
+          setPriceRange(range);
+          setSelectedValuePrice(""); // Reset option khi thay đổi slider
+        }}
       />
+
       {/* Modal Diện tích cho "Diện tích" */}
       <Area
         title="Diện tích"

@@ -41,10 +41,38 @@ const Picker: React.FC<PickerProps> = ({
   onApply,
   onReset,
 }) => {
+  const selectAll = () => {
+    const allValues: string[] = [];
+
+    const collectValues = (items: Option[]) => {
+      items.forEach((item) => {
+        allValues.push(item.value);
+        if (item.children) {
+          collectValues(item.children);
+        }
+      });
+    };
+
+    collectValues(options);
+    setSelectedValues(allValues);
+  };
+  // Hàm bỏ chọn tất cả
+  const deselectAll = () => {
+    setSelectedValues([]);
+  };
+
   const toggleSelection = (value: string, children?: Option[]) => {
     let newSelected = [...selectedValues];
     const isSelected = selectedValues.includes(value);
-
+    // Nếu là "Tất cả nhà đất"
+    if (value === "Tất cả nhà đất") {
+      if (isSelected) {
+        deselectAll();
+      } else {
+        selectAll();
+      }
+      return;
+    }
     if (isMultiple) {
       if (children?.length) {
         const childValues = children.map((c) => c.value);
@@ -70,11 +98,27 @@ const Picker: React.FC<PickerProps> = ({
     setSelectedValues(newSelected);
   };
 
+  // Kiểm tra xem tất cả có được chọn không
+  const isAllSelected = () => {
+    const allValues: string[] = [];
+    const collectValues = (items: Option[]) => {
+      items.forEach((item) => {
+        allValues.push(item.value);
+        if (item.children) {
+          collectValues(item.children);
+        }
+      });
+    };
+    collectValues(options);
+
+    return allValues.every((val) => selectedValues.includes(val));
+  };
+
   const renderOption = (option: Option, isChild = false) => (
     <TouchableOpacity
       key={option.value}
       onPress={() => toggleSelection(option.value, option.children)}
-      className={`flex-row justify-between items-center py-4  ${
+      className={`flex-row justify-between items-center py-4 ${
         isChild ? "pl-10" : ""
       }`}
     >
@@ -83,14 +127,18 @@ const Picker: React.FC<PickerProps> = ({
         <Text className="text-base">{option.label}</Text>
       </View>
       <Checkbox
-        value={selectedValues.includes(option.value)}
+        value={
+          option.value === "Tất cả nhà đất"
+            ? isAllSelected()
+            : selectedValues.includes(option.value)
+        }
         onValueChange={() => toggleSelection(option.value, option.children)}
         color={selectedValues.includes(option.value) ? "#000" : undefined}
         style={{
           width: 24,
           height: 24,
           borderRadius: 6,
-          borderColor: "#d1d5db", // tương đương 'border-border'
+          borderColor: "#d1d5db",
           borderWidth: 1,
         }}
       />

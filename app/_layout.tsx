@@ -4,9 +4,11 @@ import "../global.css";
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack initialRouteName="accountManage">
-        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
-        <Stack.Screen name="(posttabs)" options={{ headerShown: false }} />
+      <Stack
+      //     initialRouteName="selectAddress"
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {/* <Stack.Screen name="(posttabs)" options={{ headerShown: false }} /> */}
         <Stack.Screen
           name="auth/login"
           options={{
@@ -28,6 +30,7 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+
         <Stack.Screen
           name="findScreen"
           options={{
@@ -82,6 +85,14 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="personalInfo"
+          options={{
+            title: "Personal Info Screen",
+
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="settingNotificationScreen"
           options={{
             title: "Setting Notification Screen",
@@ -98,6 +109,64 @@ export default function RootLayout() {
           }}
         />
 
+        <Stack.Screen
+          name="createPost"
+          options={{
+            title: "Create Post Screen",
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="searchCreatePost"
+          options={{
+            title: "Search Create Screen",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectAddress"
+          options={{
+            title: "Select Address Screen",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectProvince"
+          options={{
+            title: "Select Province Screen",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectDistrict"
+          options={{
+            title: "Select District Screen",
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="selectWard"
+          options={{
+            title: "Select Province Screen",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectStreet"
+          options={{
+            title: "Select Street Screen",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectProject"
+          options={{
+            title: "Select Project Screen",
+            headerShown: false,
+          }}
+        />
         {/* Screen bên Post Tabs */}
         <Stack.Screen
           name="searchPostTabs"

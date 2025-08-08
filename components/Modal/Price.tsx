@@ -21,8 +21,9 @@ type PriceProps = {
   selectedValue: string;
   setSelectedValue: (value: string) => void;
   isMultiple?: boolean;
-  onApply?: () => void;
+  onApply?: (range: [number, number]) => void; // Cho phép nhận tham số range
   onReset?: () => void;
+  onRangeChange?: (range: [number, number]) => void;
 };
 
 const Price: React.FC<PriceProps> = ({
@@ -35,11 +36,46 @@ const Price: React.FC<PriceProps> = ({
   isMultiple = false,
   onApply,
   onReset,
+  onRangeChange,
 }) => {
-  const [minimum, setMinimum] = useState("");
-  const [max, setMax] = useState("");
-  const [range, setRange] = useState([0, 10000]); // Giá trị triệu
   const screenWidth = Dimensions.get("window").width;
+  const [range, setRange] = useState<[number, number]>([0, 60000000]);
+
+  const formatValue = (value: number): string => {
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)} tỷ`;
+    }
+    return `${(value / 1000).toFixed(1)} triệu`;
+  };
+
+  const parseInput = (text: string): number => {
+    const num = parseFloat(text.replace(/[^0-9.]/g, "")) || 0;
+    if (text.includes("tỷ") || text.includes("tỉ")) {
+      return num * 1000000;
+    }
+    return num * 1000;
+  };
+
+  const handleValueChange = (index: number, text: string) => {
+    let value = parseInput(text);
+    value = Math.max(0, Math.min(value, 60000000));
+
+    const newRange: [number, number] = [...range] as [number, number];
+    newRange[index] = value;
+
+    if (index === 0 && value > newRange[1]) newRange[1] = value;
+    if (index === 1 && value < newRange[0]) newRange[0] = value;
+
+    setRange(newRange);
+    onRangeChange?.(newRange);
+  };
+
+  const handleReset = () => {
+    setRange([0, 0]);
+    setSelectedValue("");
+    onRangeChange?.([0, 0]); // Thông báo reset cho component cha
+    if (onReset) onReset();
+  };
 
   return (
     <Modal transparent visible={modalVisible} animationType="fade">
@@ -61,42 +97,64 @@ const Price: React.FC<PriceProps> = ({
                 <View className="flex-1">
                   <View className="flex-row gap-2 mb-2">
                     <Text className="font-bold">Tối thiểu</Text>
-                    <Text>0 triệu</Text>
+                    <Text>{formatValue(range[0])}</Text>
                   </View>
                   <TextInput
-                    value={minimum}
-                    onChangeText={setMinimum}
-                    placeholder="0"
+                    value={
+                      range[0] === 0 && range[1] === 0
+                        ? ""
+                        : formatValue(range[0])
+                    }
+                    onChangeText={(text) => handleValueChange(0, text)}
                     keyboardType="numeric"
                     className="w-full border border-gray-300 rounded-full py-3 px-3 text-sm text-black"
-                    placeholderTextColor="#6B7280"
                   />
                 </View>
 
                 {/* Tối đa */}
                 <View className="flex-1">
                   <View className="flex-row gap-2 mb-2">
-                    <Text className="font-bold">Tối thiểu</Text>
-                    <Text>60 tỷ</Text>
+                    <Text className="font-bold">Tối đa</Text>
+                    <Text>{formatValue(range[1])}</Text>
                   </View>
                   <TextInput
-                    value={max}
-                    onChangeText={setMax}
-                    placeholder="0"
+                    value={
+                      range[0] === 0 && range[1] === 0
+                        ? ""
+                        : formatValue(range[1])
+                    }
+                    onChangeText={(text) => handleValueChange(1, text)}
                     keyboardType="numeric"
                     className="w-full border border-gray-300 rounded-full py-3 px-3 text-sm text-black"
-                    placeholderTextColor="#6B7280"
                   />
                 </View>
               </View>
               {/* Thanh kéo tối thiểu và tối đa */}
               <View className="w-full px-5">
                 <MultiSlider
-                  values={range}
-                  onValuesChange={(values) => setRange(values)}
+                  values={[
+                    range[0] === 0 && range[1] === 0 ? 0 : range[0] / 1000,
+                    range[1] / 1000,
+                  ]}
+                  onValuesChange={(values) => {
+                    // Nếu slider kéo về 0, set [0, 0]
+                    if (values[0] === 0 && values[1] === 0) {
+                      setRange([0, 0]);
+                    } else {
+                      setRange([values[0] * 1000, values[1] * 1000]);
+                    }
+                    setSelectedValue(""); // Bỏ chọn option khi kéo slider
+                    const newRange: [number, number] =
+                      values[0] === 0 && values[1] === 0
+                        ? [0, 0]
+                        : [values[0] * 1000, values[1] * 1000];
+
+                    setRange(newRange);
+                    onRangeChange?.(newRange);
+                  }}
                   min={0}
-                  max={60000}
-                  step={100}
+                  max={60000} // 60 tỷ (60,000 triệu)
+                  step={100} // Bước nhảy 100 triệu
                   containerStyle={{ marginHorizontal: 0 }} // Xóa padding mặc định
                   trackStyle={{ height: 10, borderRadius: 999 }}
                   sliderLength={screenWidth - 40}
@@ -119,13 +177,23 @@ const Price: React.FC<PriceProps> = ({
                   {options.map((option) => (
                     <TouchableOpacity
                       key={option.value}
-                      className="flex-row justify-between  py-4 items-center border-t  border-gray-200 "
+                      className="flex-row justify-between py-4 items-center border-t border-gray-200"
                       onPress={() => {
                         setSelectedValue(option.value);
-                        setModalVisible(false); // Đóng modal khi chọn
+
+                        // Xử lý đặc biệt cho option "Tất cả khoảng giá"
+                        if (option.label === "Tất cả khoảng giá") {
+                          const fullRange: [number, number] = [0, 60000000]; // 0 - 60 tỷ
+                          setRange(fullRange);
+                          onRangeChange?.(fullRange);
+                        } else {
+                          setRange([0, 0]); // Reset slider khi chọn option khác
+                        }
+
+                        setModalVisible(false);
                       }}
                     >
-                      <Text className="text-lg ">{option.label}</Text>
+                      <Text className="text-lg">{option.label}</Text>
                       <View
                         className={`w-6 h-6 rounded-full border border-gray-400 mr-2 ${
                           selectedValue === option.value
@@ -142,14 +210,17 @@ const Price: React.FC<PriceProps> = ({
               {isMultiple && (
                 <View className="flex-row justify-between items-center px-5 pt-4 border-t  border-gray-200 bg-white">
                   <TouchableOpacity
-                    onPress={onReset}
+                    onPress={() => {
+                      handleReset();
+                      onReset?.(); // Gọi hàm onReset từ props nếu có
+                    }}
                     className="flex-1 border border-black py-3 rounded-full mr-2"
                   >
                     <Text className="text-center font-semibold">Đặt lại</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
-                      onApply?.();
+                      onApply?.(range);
                       setModalVisible(false);
                     }}
                     className="flex-1 bg-black py-3 rounded-full ml-2"

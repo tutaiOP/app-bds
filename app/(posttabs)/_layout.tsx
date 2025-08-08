@@ -36,7 +36,7 @@ export default function PostTabsLayout() {
 
   return (
     <Tabs
-      initialRouteName="overview"
+      //    initialRouteName="postnews"
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarLabelStyle: {
@@ -75,6 +75,12 @@ export default function PostTabsLayout() {
 
       <Tabs.Screen
         name="postnews"
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault(); // Ngăn chặn chuyển tab bình thường
+            navigation.navigate("createPost");
+          },
+        })}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons

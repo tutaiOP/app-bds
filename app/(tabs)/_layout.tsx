@@ -32,7 +32,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      // initialRouteName="accountnav"
+      initialRouteName="searchnav"
       screenOptions={{ tabBarActiveTintColor: colors.primary }}
     >
       <Tabs.Screen
